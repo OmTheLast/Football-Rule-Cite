@@ -1,94 +1,66 @@
-# Football Rule Cite
+<h1 align="center">Football Rule Cite</h1>
 
-Local-first referee call explanation assistant grounded in the IFAB Laws of the Game.
+**Describe an incident and a referee’s call, then inspect an explanation linked to retrieved IFAB law excerpts.**
 
-The MVP flow is:
+[Demo or published artifacts](https://omthelast.github.io/DECISIONCITATION/)
 
-1. Download the official IFAB Laws PDF.
-2. Extract page text with page numbers.
-3. Build a local BM25-style search index.
-4. Retrieve relevant law excerpts for an incident and stated call.
-5. Ask a local Ollama model to explain the call only from retrieved evidence.
+Python and local Ollama. Source PDF downloads separately. Hosted page is a sample preview; live explanations require the local server.
 
-## Quick Start
+By Om Patnaik · repository created July 2026.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-176b75?style=flat-square)](LICENSE)
+
+## Install
+
+| Platform / path | Start here |
+| --- | --- |
+| Python | `pip install -r requirements.txt` in a virtual environment |
+| Preview | [Open the static sample](https://omthelast.github.io/DECISIONCITATION/) |
+
+Run `python -m src.cli ingest`, then `python -m src.cli serve` and open http://127.0.0.1:8765. Start Ollama with the configured model (`qwen3.6:27b` by default). The hosted sample needs no model download.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
 python -m src.cli ingest
-python -m src.cli explain --call "Penalty kick" "A defender trips an attacker inside the penalty area while challenging for the ball."
-```
-
-By default, the assistant uses `qwen3.6:27b` via Ollama.
-
-```bash
-OLLAMA_MODEL=qwen3:latest python -m src.cli ask "An attacker in an offside position interferes with a defender."
-```
-
-## Commands
-
-GitHub Pages preview:
-
-```text
-https://omthelast.github.io/DECISIONCITATION/
-```
-
-The Pages version is a static preview and uses sample output. Run the local server for live Ollama explanations.
-
-Explain why a stated call may have been made:
-
-```bash
-python -m src.cli explain --call "Penalty kick" "A defender trips an attacker inside the penalty area while challenging for the ball."
-```
-
-Ask for a direct decision from the incident text:
-
-```bash
-python -m src.cli ask "A defender trips an attacker inside the penalty area while challenging for the ball."
-```
-
-Run the local web UI:
-
-```bash
 python -m src.cli serve
 ```
 
-Then open `http://127.0.0.1:8765`.
+## Why
 
-Run the seed evaluation set:
+You want to understand which law might explain a call, with the source passage available to inspect. Football Rule Cite retrieves page-labelled text from the IFAB Laws before asking Ollama for an explanation. The stated call is input; this is not an expert referee-decision benchmark.
+
+## Inspect a cited explanation
+
+Use `explain --call` for a stated decision or `ask` for a direct question. Review retrieved laws and uncertainties rather than treating the generated text as a ruling.
+
+## Read recorded evaluation
+
+Both July 8 runs passed 10/10 seed scenarios for expected-law coverage and required uncertainty presence. Extra law numbers did not fail the scorer; model digests and PDF hashes were not captured. [Full answers and scoring limits](eval/README.md).
+
+## Notes from building it
+
+I kept the source excerpts and citations visible instead of relying on an unsupported model answer. Rescoring the saved runs clarified that passing meant law coverage, not decision correctness. I would add expert-reviewed grounding checks and pinned runtime metadata before making stronger claims.
+
+## Commands
 
 ```bash
-OLLAMA_MODEL=qwen3:latest python -m src.cli eval --limit 3
+python -m src.cli ingest        # download and index the source
+python -m src.cli serve         # serve the local interface
+python -m src.cli explain --call 'Penalty kick' 'A defender trips an attacker inside the penalty area.'  # explain a call
+python -m src.cli ask 'An offside attacker interferes with a defender.'  # ask about an incident
+python -m src.cli eval --save    # run seed scenarios; requires Ollama
 ```
 
-Save a model-specific eval report locally:
+## Verify it yourself
 
 ```bash
-OLLAMA_MODEL=qwen3.6:27b python -m src.cli eval --save
-OLLAMA_MODEL=qwen3:latest python -m src.cli eval --save
+python -m compileall -q src
+python -m src.cli eval --save
 ```
 
-Eval reports are written under `eval/runs/` and ignored by git by default.
+Compilation checks syntax; evaluation needs the ingested source and installed Ollama model. The ten-case scorer checks expected laws and uncertainty presence, not clause accuracy or expert judgment; saved-run rescoring is documented in `eval/README.md`.
 
-## Recorded Evaluation
+## Credits, license and pointers
 
-Saved runs from 2026-07-08 passed all 10 seed scenarios for both `qwen3:latest`
-and `qwen3.6:27b`. Rescoring the saved answers on 2026-10-12 confirmed these
-results. This checks expected-law coverage and required uncertainty presence,
-not football decision accuracy or expert-validated reasoning. Extra laws do not
-fail the test; the smaller model included them in two scenarios.
+Source: IFAB Laws of the Game 2026/27. Built with Python, PDF extraction, and Ollama/Qwen; dependency details are in `requirements.txt`. [MIT](LICENSE); IFAB material retains its own terms.
 
-See [the evaluation documentation](eval/README.md) for the test cases, full model
-outputs, scoring limits and commands to run the evaluation locally.
-
-## Source
-
-Default source: IFAB Laws of the Game 2026/27, single-page English PDF.
-
-The source URL can be changed in `config/sources.json`.
-
-## Repository Notes
-
-Downloaded PDFs and generated search indexes are intentionally not committed.
-Run `python -m src.cli ingest` after cloning to recreate local data under `data/`.
+[Full setup, original notes, and project history](README-DETAILS.md).
