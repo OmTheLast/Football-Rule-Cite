@@ -1,8 +1,10 @@
 <h1 align="center">Football Rule Cite</h1>
 
+[Portfolio case study](https://ompatnaik.com/projects/football-rule-cite/) · [Static sample preview](https://ompatnaik.com/Football-Rule-Cite/)
+
 **Describe an incident and a referee’s call, then inspect an explanation linked to retrieved IFAB law excerpts.**
 
-[Demo or published artifacts](https://omthelast.github.io/DECISIONCITATION/)
+[Demo or published artifacts](https://ompatnaik.com/Football-Rule-Cite/)
 
 Python and local Ollama. Source PDF downloads separately. Hosted page is a sample preview; live explanations require the local server.
 
@@ -15,7 +17,7 @@ By Om Patnaik · repository created July 2026.
 | Platform / path | Start here |
 | --- | --- |
 | Python | `pip install -r requirements.txt` in a virtual environment |
-| Preview | [Open the static sample](https://omthelast.github.io/DECISIONCITATION/) |
+| Preview | [Open the static sample](https://ompatnaik.com/Football-Rule-Cite/) |
 
 Run `python -m src.cli ingest`, then `python -m src.cli serve` and open http://127.0.0.1:8765. Start Ollama with the configured model (`qwen3.6:27b` by default). The hosted sample needs no model download.
 
